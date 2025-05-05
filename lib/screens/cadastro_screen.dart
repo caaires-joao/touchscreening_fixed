@@ -43,22 +43,25 @@ class CadastroScreenState extends State<CadastroScreen> {
           await _authService.registerWithEmailAndPassword(email, password);
 
       if (userCredential != null) {
-        await _userDatabase.saveUserData(userCredential.user!.uid, name);
+        await userCredential.user!.updateDisplayName(name);
+        await userCredential.user!.reload();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cadastro realizado com sucesso!')),
-        );
+      await _userDatabase.saveUserData(userCredential.user!.uid, name);
 
-        _nameController.clear();
-        _emailController.clear();
-        _passwordController.clear();
-        _confirmpasswordController.clear();
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+  );
 
-        setState(() {
-          _isLoading = false;
-        });
+  _nameController.clear();
+  _emailController.clear();
+  _passwordController.clear();
+  _confirmpasswordController.clear();
 
-        Navigator.pushReplacementNamed(context, '/');
+  setState(() {
+    _isLoading = false;
+  });
+
+  Navigator.pushReplacementNamed(context, '/');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao realizar o cadastro.')),

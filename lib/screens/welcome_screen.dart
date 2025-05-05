@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../Auth/provider.dart' as my_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
 
   @override
   WelcomeScreenState createState() => WelcomeScreenState();
@@ -12,12 +14,25 @@ class WelcomeScreen extends StatefulWidget {
 
 class WelcomeScreenState extends State<WelcomeScreen> {
   User? currentUser;
+  String? UserName; // novo
 
-  @override
-  void initState() {
-    super.initState();
-    currentUser = FirebaseAuth.instance.currentUser;
-  }
+@override
+void initState() {
+  super.initState();
+  currentUser=FirebaseAuth.instance.currentUser;
+  loadUser();
+}
+
+void loadUser() async {
+  if (currentUser != null){
+final collection=await FirebaseFirestore.instance.collection('users').doc(currentUser?.uid).get();
+  if (collection.exists){
+  final data=collection.data();
+  setState(() {
+    UserName=data?['name'];
+  });
+  }}
+}
 
   void _welcome() {
     Navigator.pushNamed(context, '/main');
@@ -46,7 +61,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 20),
               Text(
                 currentUser != null
-                    ? 'Olá, Enf. ${currentUser!.email}'
+                    ? 'Olá, Enf. $UserName'
                     : 'Olá, Enf.',
                 style: const TextStyle(
                   fontSize: 19.0,
